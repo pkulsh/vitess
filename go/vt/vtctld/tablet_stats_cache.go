@@ -34,11 +34,11 @@ type heatmap struct {
 	Aliases [][]*topodata.TabletAlias
 }
 
-type byTabletUid []*discovery.TabletStats
+type byTabletUID []*discovery.TabletStats
 
-func (a byTabletUid) Len() int           { return len(a) }
-func (a byTabletUid) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byTabletUid) Less(i, j int) bool { return a[i].Tablet.Alias.Uid < a[j].Tablet.Alias.Uid }
+func (a byTabletUID) Len() int           { return len(a) }
+func (a byTabletUID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byTabletUID) Less(i, j int) bool { return a[i].Tablet.Alias.Uid < a[j].Tablet.Alias.Uid }
 
 const tabletMissing = -1
 
@@ -123,7 +123,7 @@ func (c *tabletStatsCache) StatsUpdate(stats *discovery.TabletStats) {
 		}
 
 		c.statuses[keyspace][shard][cell][tabletType] = append(c.statuses[keyspace][shard][cell][tabletType], stats)
-		sort.Sort(byTabletUid(c.statuses[keyspace][shard][cell][tabletType]))
+		sort.Sort(byTabletUID(c.statuses[keyspace][shard][cell][tabletType]))
 		c.statusesByAlias[aliasKey] = stats
 		c.tabletCountsByCell[cell]++
 		return
@@ -254,15 +254,15 @@ func (c *tabletStatsCache) heatmapData(keyspace, cell, tabletType, metric string
 	}, nil
 }
 
-func (c *tabletStatsCache) tabletStatsByAlias(tabletAlias *topodatapb.TabletAlias) *discovery.TabletStats {
+func (c *tabletStatsCache) tabletStatsByAlias(tabletAlias *topodatapb.TabletAlias) discovery.TabletStats {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	ts, ok := c.statusesByAlias[tabletAlias.String()]
 	if !ok {
-		return nil
+		return discovery.TabletStats{}
 	}
-	return ts
+	return (*ts)
 }
 
 func replicationLag(stat *discovery.TabletStats) float64 {
