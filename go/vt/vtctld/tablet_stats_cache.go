@@ -7,6 +7,7 @@ import (
 
 	"github.com/youtube/vitess/go/vt/discovery"
 	"github.com/youtube/vitess/go/vt/proto/topodata"
+	"github.com/youtube/vitess/go/vt/topo"
 	"github.com/youtube/vitess/go/vt/topo/topoproto"
 )
 
@@ -80,7 +81,10 @@ type topologyInfo struct {
 	TabletTypes []string
 }
 
-func newTabletStatsCache() *tabletStatsCache {
+var topoServer *topo.Server
+
+func newTabletStatsCache(ts) *tabletStatsCache {
+	topoServer = ts
 	return &tabletStatsCache{
 		statuses:        make(map[string]map[string]map[string]map[topodata.TabletType][]*discovery.TabletStats),
 		statusesByAlias: make(map[string]*discovery.TabletStats),
@@ -279,6 +283,11 @@ func sortTypes(types map[topodata.TabletType]bool) []topodata.TabletType {
 		listOfTypes = append(listOfTypes, topodata.TabletType_RDONLY)
 	}
 	return listOfTypes
+}
+
+func sortShards(keyspace string, shards []string) {
+	//srvKeyspace := ts.GetSrvKeyspace(context.Background(), /*cell*/, keyspace)
+
 }
 
 func (c *tabletStatsCache) shards(keyspace string) []string {

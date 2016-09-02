@@ -411,6 +411,10 @@ func TestTopologyInfo(t *testing.T) {
 	}
 }
 
+func TestSortingShards(t *testing.T) {
+
+}
+
 // tabletStats will create a discovery.TabletStats object.
 func tabletStats(keyspace, cell, shard string, tabletType topodatapb.TabletType, uid uint32) *discovery.TabletStats {
 	target := &querypb.Target{
